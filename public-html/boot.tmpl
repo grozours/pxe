@@ -1,0 +1,12 @@
+#!ipxe
+
+menu BZHTech.EU iPXE menu
+item xfce-debian-setup Debian 13 XFCE AutoInstall
+choose --default xfce-debian-setup --timeout 5 target && goto 
+
+:xfce-debian-setup
+kernel http://ftp.fr.debian.org/debian/dists/Debian13.2/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux
+initrd http://ftp.fr.debian.org/debian/dists/Debian13.2/main/installer-amd64/current/images/netboot/debian-installer/amd64/initrd.gz
+initrd http://${MY_IP}/debian/preseed.cfg preseed.cfg
+imgargs linux vga=normal auto=true interface=auto netcfg/dhcp_timeout=60 netcfg/choose_interface=eth0 priority=critical net.ifnames=0 ipv6.disable=1
+boot || read void

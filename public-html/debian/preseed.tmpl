@@ -1,0 +1,174 @@
+## Mettre le système en Français
+d-i debian-installer/locale string fr_FR.UTF-8
+
+d-i	keyboard-configuration/altgr	select	Right Alt (AltGr)
+d-i	keyboard-configuration/compose	select	No compose key
+d-i	keyboard-configuration/ctrl_alt_bksp	boolean	false
+d-i	keyboard-configuration/layout	select	French
+d-i	keyboard-configuration/layoutcode	string	fr
+d-i	keyboard-configuration/model	select	
+d-i	keyboard-configuration/modelcode	string	
+d-i	keyboard-configuration/optionscode	string	
+d-i	keyboard-configuration/store_defaults_in_debconf_db	boolean	true
+d-i	keyboard-configuration/switch	select	No temporary switch
+d-i	keyboard-configuration/toggle	select	Alt+Shift
+d-i	keyboard-configuration/unsupported_config_layout	boolean	true
+d-i	keyboard-configuration/unsupported_config_options	boolean	true
+d-i	keyboard-configuration/unsupported_layout	boolean	true
+d-i	keyboard-configuration/unsupported_options	boolean	true
+d-i	keyboard-configuration/variant	select	Français
+d-i	keyboard-configuration/variantcode	string	
+d-i	keyboard-configuration/xkb-keymap	select	
+d-i     console-keymaps-at/keymap select fr-latin9
+
+# locales
+locales locales/default_environment_locale      select fr_FR@UTF-8
+locales locales/locales_to_be_generated multiselect     fr_FR.UTF-8 UTF-8
+
+d-i netcfg/choose_interface select auto
+
+## Définir le nom d'hôte.
+## Avec les deux paramètres suivants, le nom d'hôte peut-être récupéré
+## directement deuis le DHCP avec les directives "option host-name"
+# d-i netcfg/get_hostname string unassigned-hostname
+# d-i netcfg/get_domain string unassigned-domain
+## Sinon utiliser  la linge suivante pour donner le que vous voulez
+## Ici, la machine se nommera "Debian-auto"
+d-i netcfg/hostname string ${NOM_MACHINE}
+
+d-i hw-detect/load_firmware                     boolean     true
+
+## Définir le miroir d'installation
+## Si vous avez un miroir local, c'est ici qu'il faut donner son adresse
+d-i mirror/country string manual
+d-i mirror/http/hostname string ftp.fr.debian.org
+d-i mirror/http/directory string /debian
+d-i mirror/http/proxy string
+
+## Définir les mots de passes utilisateurs
+## Ici, l'utilisateur root et password
+d-i passwd/root-password-crypted password ${PASSWORD_HASH}
+## Ici, l'utilisateur 
+d-i passwd/user-fullname string ${UTILISATEUR}
+d-i passwd/username string ${UTILISATEUR}
+d-i passwd/user-password password ${PASSWORD}
+d-i passwd/user-password-again password ${PASSWORD}
+
+
+## Configurer la date et l'heure
+d-i clock-setup/utc boolean true
+d-i time/zone string Europe/Paris
+## On peut utiliser le serveur NTP que l'on souhaite
+d-i clock-setup/ntp boolean true
+d-i clock-setup/ntp-server string fr.pool.ntp.org
+
+## Partitionnement du disque
+## Formatage du premier disque
+### Partitioning
+
+# use LVM to partition the disk
+d-i partman-auto/method string lvm
+
+# If one of the disks that are going to be automatically partitioned
+# contains an old LVM configuration, the user will normally receive a
+# warning. This can be preseeded away...
+d-i partman-lvm/device_remove_lvm boolean true
+# The same applies to pre-existing software RAID array:
+d-i partman-md/device_remove_md boolean true
+# And the same goes for the confirmation to write the lvm partitions.
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+
+# For LVM partitioning, you can select how much of the volume group to use
+# for logical volumes.
+d-i partman-auto-lvm/guided_size string max
+
+# You can choose one of the three predefined partitioning recipes:
+# - atomic: all files in one partition
+# - home:   separate /home partition
+# - multi:  separate /home, /var, and /tmp partitions
+#TODO d-i partman-auto/choose_recipe select boot-root
+d-i partman-auto/purge_lvm_from_device boolean true
+d-i partman-auto-lvm/new_vg_name string vgubuntu
+
+# Creates a small /boot partition, and uses the rest of the space for
+# an lvm root partition:
+d-i partman-auto/expert_recipe string                         \
+boot-root ::                                              \
+768 768 768 fat32                                     \
+    §primary{ }                                       \
+            method{ efi } format{ }                           \
+        .                                                     \
+        1024 1024 1024 ext4                                   \
+            §primary{ } §bootable{ }                          \
+            method{ format } format{ }                        \
+            use_filesystem{ } filesystem{ ext4 }              \
+            mountpoint{ /boot }                               \
+        .                                                     \
+        4000 100 -1 ext4                                      \
+            §defaultignore{ }                                 \
+            §primary{}                                        \
+            method{ lvm } format{ }                           \
+            vg_name{ vgubuntu }                               \
+        .                                                     \
+        4096 100 4096 linux-swap                              \
+            §lvmok{ }                                         \
+            in_vg{ vgubuntu } lv_name{ swap }                 \
+            method{ swap } format{ }                          \
+        .                                                     \
+        4000 100 -1 ext4                                      \
+            §defaultignore{ }                                 \
+            §lvmok{ }                                         \
+            in_vg{ vgubuntu } lv_name{ root }                 \
+            method{ format } format{ }                        \
+            use_filesystem{ } filesystem{ ext4 }              \
+            mountpoint{ / }                                   \
+        .                                                     \
+# If you just want to change the default filesystem from ext3 to something
+# else, you can do that without providing a full recipe.
+#d-i partman/default_filesystem string ext4
+
+# The full recipe format is documented in the file partman-auto-recipe.txt
+# included in the 'debian-installer' package or available from D-I source
+# repository. This also documents how to specify settings such as file
+# system labels, volume group names and which physical devices to include
+# in a volume group.
+
+# This makes partman automatically partition without confirmation, provided
+# that you told it what to do using one of the methods above.
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+## Définition du dépôt des mises à jours de sécurités
+d-i apt-setup/services-select multiselect security
+d-i apt-setup/security_host string security.debian.org
+
+## Participation à l'étude statistique d'utilisation des paquets
+## Désactivée
+popularity-contest popularity-contest/participate boolean false
+
+## Type d'installation
+## Utilitaires usuels du systèmes + interface graphique
+#tasksel tasksel/first multiselect standard, desktop
+tasksel tasksel/first multiselect minimal, xfce-desktop
+
+## Installation d'utilitaires supplémentaires
+d-i pkgsel/include string openssh-server vim tree htop tmux bash-completion tcpdump iftop wget curl ftp iperf net-tools sudo debconf-utils xserver-xorg-input-synaptics hplip
+
+## Installer GRUB sur /dev/sda sans poser question
+#d-i grub-installer/bootdev string /dev/sda
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/bootdev string default
+
+#d-i preseed/late_command string update-grub
+
+## Exécuter un script après l'installation
+d-i preseed/late_command string in-target wget -P /tmp/ http://${MY_IP}/debian/post-install.sh; in-target chmod +x /tmp/post-install.sh; in-target /tmp/post-install.sh
+
+## Terminer l'installation sans poser de question
+d-i finish-install/reboot_in_progress note
+
+## Éteindre la machine plutôt que de la redémarrer
+#d-i debian-installer/exit/poweroff boolean true

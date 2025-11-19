@@ -1,0 +1,19 @@
+services:
+  apache:
+    restart: unless-stopped
+    image: httpd:2.4
+    container_name: apache
+    volumes:
+      - $PWD/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - $PWD/public-html:/usr/local/apache2/htdocs
+    network_mode: host
+  dhcp_tftp:
+    restart: unless-stopped
+    image: strm/dnsmasq
+    container_name: dhcp_tftp
+    volumes:
+      - $PWD/dnsmasq.conf:/etc/dnsmasq.conf
+      - $PWD/tftp:/var/tftp
+    network_mode: host
+    cap_add:
+      - NET_ADMIN

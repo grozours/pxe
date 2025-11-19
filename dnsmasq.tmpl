@@ -1,0 +1,23 @@
+bind-interfaces
+dhcp-range=${NETWORK}.30,${NETWORK}.40,12h
+enable-tftp
+tftp-root=/var/tftp
+
+# Legacy PXE
+dhcp-match=set:bios,option:client-arch,0
+dhcp-boot=tag:bios,/undionly.kpxe
+
+# UEFI
+dhcp-match=set:efi32,option:client-arch,6
+dhcp-boot=tag:efi32,/ipxe.efi
+dhcp-match=set:efibc,option:client-arch,7
+dhcp-boot=tag:efibc,/ipxe.efi
+dhcp-match=set:efi64,option:client-arch,9
+dhcp-boot=tag:efi64,/ipxe.efi
+
+# iPXE
+dhcp-userclass=set:ipxe,iPXE
+dhcp-boot=tag:ipxe,http://${MY_IP}/boot.php
+
+# tftp server URL
+dhcp-option=66,${MY_IP}
