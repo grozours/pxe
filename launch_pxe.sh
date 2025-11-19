@@ -55,4 +55,4 @@ envsubst < public-html/boot.tmpl > public-html/boot.php
 envsubst < public-html/debian/preseed.tmpl | sed -e 's/§/$/g' > public-html/debian/preseed.cfg
 
 docker compose down
-docker compose up -d --remove-orphans
+docker compose up -d --remove-orphans --force-recreate
