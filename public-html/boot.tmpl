@@ -2,7 +2,7 @@
 
 menu BZHTech.EU iPXE menu
 item xfce-debian-setup Debian 13 XFCE AutoInstall
-choose --default xfce-debian-setup --timeout 5 target && goto 
+choose --default xfce-debian-setup --timeout 5 target && goto §{target}
 
 :xfce-debian-setup
 kernel http://ftp.fr.debian.org/debian/dists/Debian13.2/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux

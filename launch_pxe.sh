@@ -26,7 +26,7 @@ do
    echo "Verification Mot de passe root (masqué):"
    read -s PASSWORD_HASH2
 done
-export PASSWORD_HASH=$(mkpasswd -m sha-512 $PASSWORD_HASH2)
+export ROOT_PASSWORD_HASH=$(mkpasswd -m sha-512 $PASSWORD_HASH2)
 
 echo ""
 read -p "Utilisateur  ( mikael ) : " UTILISATEUR
@@ -45,13 +45,12 @@ do
    echo "Vérification Mot de passe utilisateur (masqué) :"
    read -s PASSWORD2
 done
-export PASSWORD=$PASSWORD2
-
+export USER_PASSWORD_HASH=$(mkpasswd -m sha-512 $PASSWORD2)
 
 export DEBIAN_BASE="http://ftp.fr.debian.org/debian/dists/Debian13.2"
 
 envsubst < dnsmasq.tmpl > dnsmasq.conf
-envsubst < public-html/boot.tmpl > public-html/boot.php
+envsubst < public-html/boot.tmpl | sed -e 's/§/$/g' > public-html/boot.php
 envsubst < public-html/debian/preseed.tmpl | sed -e 's/§/$/g' > public-html/debian/preseed.cfg
 
 docker compose down

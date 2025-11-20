@@ -47,13 +47,11 @@ d-i mirror/http/proxy string
 
 ## Définir les mots de passes utilisateurs
 ## Ici, l'utilisateur root et password
-d-i passwd/root-password-crypted password ${PASSWORD_HASH}
+d-i passwd/root-password-crypted password ${ROOT_PASSWORD_HASH}
 ## Ici, l'utilisateur 
 d-i passwd/user-fullname string ${UTILISATEUR}
 d-i passwd/username string ${UTILISATEUR}
-d-i passwd/user-password password ${PASSWORD}
-d-i passwd/user-password-again password ${PASSWORD}
-
+d-i passwd/user-password-crypted password ${USER_PASSWORD_HASH}
 
 ## Configurer la date et l'heure
 d-i clock-setup/utc boolean true
